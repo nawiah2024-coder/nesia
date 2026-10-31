@@ -1,0 +1,1417 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MPI - Mengidentifikasi Fakta dan Opini dalam Teks Artikel Ilmiah Populer (Kelas VIII)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3C096C',
+                        secondary: '#2EC4B6',
+                        accent: '#F8F9FA',
+                        darkBg: '#120024',
+                        darkCard: '#1E0538'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'Poppins', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Poppins:wght@500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- JS Libraries for Audio, Canvas & Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <style>
+        body {
+            font-family: 'Poppins', 'Inter', sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .canva-card {
+            box-shadow: 0 10px 25px -5px rgba(60, 9, 108, 0.15), 0 8px 10px -6px rgba(46, 196, 182, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .canva-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 30px -10px rgba(60, 9, 108, 0.25);
+        }
+        .btn-3d {
+            transition: all 0.15s ease;
+            box-shadow: 0 5px 0 #280648;
+        }
+        .btn-3d:active {
+            transform: translateY(4px);
+            box-shadow: 0 1px 0 #280648;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2EC4B6;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3C096C;
+        }
+    </style>
+</head>
+<body class="bg-[#F8F9FA] text-slate-800 dark:bg-darkBg dark:text-slate-100 min-h-screen flex flex-col justify-between">
+
+    <!-- AUDIO BACKGROUND (Lo-Fi Pixabay) -->
+    <audio id="bgAudio" loop preload="auto">
+        <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=lofi-study-112191.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- HEADER TOP BAR -->
+    <header class="sticky top-0 z-50 bg-[#3C096C] text-white shadow-lg border-b-4 border-[#2EC4B6]">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
+            <!-- Logo / Identity -->
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="goToHome()">
+                <div class="w-10 h-10 rounded-full bg-[#2EC4B6] flex items-center justify-center text-[#3C096C] font-bold text-xl shadow-md">
+                    <i class="fa-solid fa-book-open-reader"></i>
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-lg leading-tight tracking-wide text-white">MPI BAHASA INDONESIA</h1>
+                    <p class="text-xs text-[#2EC4B6] font-medium">SMP Kelas VIII • Teks Artikel Ilmiah Populer</p>
+                </div>
+            </div>
+
+            <!-- Student Info Displayed Here -->
+            <div id="studentBadge" class="hidden md:flex items-center bg-white/10 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/20 text-xs">
+                <i class="fa-solid fa-user-graduate text-[#2EC4B6] mr-2 text-sm"></i>
+                <span id="badgeName" class="font-bold mr-2 text-white">Siswa</span> | 
+                <span id="badgeClass" class="ml-2 font-medium text-slate-200">Kelas</span>
+            </div>
+
+            <!-- Top Action Controls -->
+            <div class="flex items-center space-x-2">
+                <!-- Sound Toggle -->
+                <button onclick="toggleAudio()" id="audioBtn" class="p-2 rounded-lg bg-white/10 hover:bg-white/20 text-[#2EC4B6] transition" title="Musik Lofi On/Off">
+                    <i class="fa-solid fa-music"></i>
+                </button>
+                <!-- Text-to-Speech Toggle -->
+                <button onclick="toggleTTS()" id="ttsBtn" class="p-2 rounded-lg bg-white/10 hover:bg-white/20 text-yellow-300 transition" title="Baca Layar (Web Speech API Indonesia)">
+                    <i class="fa-solid fa-volume-high"></i>
+                </button>
+                <!-- Dark Mode Toggle -->
+                <button onclick="toggleDarkMode()" class="p-2 rounded-lg bg-white/10 hover:bg-white/20 text-indigo-200 transition" title="Ubah Tema Light/Dark">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+                <!-- Home Button -->
+                <button onclick="goToHome()" class="p-2 rounded-lg bg-[#2EC4B6] hover:bg-teal-400 text-[#3C096C] font-bold transition flex items-center gap-1 text-xs px-3">
+                    <i class="fa-solid fa-house"></i> Home
+                </button>
+            </div>
+        </div>
+
+        <!-- Progress Bar Indicator -->
+        <div class="w-full bg-purple-950 h-2">
+            <div id="progressBar" class="bg-[#2EC4B6] h-2 transition-all duration-500 w-0"></div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
+
+        <!-- 0. LOGIN MODAL OVERLAY / LANDING SCREEN -->
+        <section id="loginSection" class="block">
+            <div class="max-w-2xl mx-auto bg-white dark:bg-darkCard rounded-3xl p-8 shadow-2xl border-2 border-[#2EC4B6] relative overflow-hidden">
+                <div class="absolute -top-10 -right-10 w-40 h-40 bg-[#2EC4B6]/20 rounded-full blur-2xl"></div>
+                <div class="text-center mb-8">
+                    <span class="bg-[#3C096C] text-[#2EC4B6] text-xs font-bold px-4 py-1.5 rounded-full uppercase tracking-widest">MEDIA PEMBELAJARAN INTERAKTIF</span>
+                    <h2 class="text-3xl font-extrabold text-[#3C096C] dark:text-[#2EC4B6] mt-4 mb-2">Mengidentifikasi Fakta & Opini</h2>
+                    <p class="text-slate-600 dark:text-slate-300 text-sm">Dalam Teks Artikel Ilmiah Populer • Kelas VIII SMP</p>
+                </div>
+
+                <!-- Canva Style Decorative Banner -->
+                <div class="bg-gradient-to-r from-[#3C096C] to-[#2EC4B6] p-6 rounded-2xl text-white mb-6 shadow-md flex items-center justify-between">
+                    <div>
+                        <h3 class="font-bold text-lg mb-1"><i class="fa-solid fa-circle-info text-yellow-300 mr-2"></i>Instruksi Penggunaan:</h3>
+                        <ul class="text-xs space-y-1 opacity-95">
+                            <li>1. Isi Nama Lengkap & pilih Kelas VIII milikmu.</li>
+                            <li>2. Klik tombol "MULAI BELAJAR" untuk masuk ke Menu Utama.</li>
+                            <li>3. Pelajari setiap modul secara runut untuk hasil maksimal.</li>
+                        </ul>
+                    </div>
+                    <i class="fa-solid fa-laptop-code text-5xl text-white/30 hidden sm:block"></i>
+                </div>
+
+                <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1">Nama Murid:</label>
+                        <input type="text" id="inputName" required placeholder="Ketik nama lengkapmu di sini..." class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-[#2EC4B6] outline-none transition">
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1">Kelas (Dropdown):</label>
+                            <select id="selectClass" onchange="toggleManualClass(this.value)" class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-[#2EC4B6] outline-none transition">
+                                <option value="VIII A">VIII A</option>
+                                <option value="VIII B">VIII B</option>
+                                <option value="VIII C">VIII C</option>
+                                <option value="VIII D">VIII D</option>
+                                <option value="VIII E">VIII E</option>
+                                <option value="MANUAL">LAINNYA / TULIS KELAS MANUAL</option>
+                            </select>
+                        </div>
+                        <div id="manualClassDiv" class="hidden">
+                            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1">Tulis Kelas Manual:</label>
+                            <input type="text" id="inputManualClass" placeholder="Contoh: VIII F" class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-[#2EC4B6] outline-none transition">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full py-4 bg-[#3C096C] hover:bg-purple-900 text-white font-bold text-lg rounded-xl shadow-lg border-b-4 border-[#2EC4B6] hover:shadow-xl transition transform active:scale-98 flex items-center justify-center gap-2 btn-3d">
+                        <span>MULAI BELAJAR</span>
+                        <i class="fa-solid fa-play"></i>
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- DASHBOARD MAIN MENU (GRID MENU 3D) -->
+        <section id="menuSection" class="hidden">
+            <!-- Welcome Header -->
+            <div class="bg-white dark:bg-darkCard p-6 rounded-2xl shadow-sm mb-8 border-l-8 border-[#2EC4B6] flex flex-col md:flex-row justify-between items-center gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-[#3C096C] dark:text-[#2EC4B6]">Selamat Datang, <span id="welcomeName" class="underline underline-offset-4 font-extrabold text-[#3C096C] dark:text-[#2EC4B6]">Murid</span>! 👋</h2>
+                    <p class="text-slate-600 dark:text-slate-300 text-sm mt-1">Pilih modul pembelajaran di bawah ini untuk memulai petualangan belajarmu.</p>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-2 bg-[#3C096C]/10 dark:bg-white/10 px-4 py-2 rounded-xl">
+                        <i class="fa-solid fa-trophy text-yellow-500 text-2xl"></i>
+                        <div>
+                            <div class="text-xs text-slate-500 dark:text-slate-400">Total Progress</div>
+                            <div id="progressPercent" class="font-bold text-[#3C096C] dark:text-[#2EC4B6]">0% Selesai</div>
+                        </div>
+                    </div>
+                    <button onclick="resetModuleProgress()" class="px-3 py-2 bg-purple-100 dark:bg-purple-900/50 text-[#3C096C] dark:text-[#2EC4B6] text-xs font-bold rounded-xl hover:bg-purple-200 transition flex items-center gap-1" title="Ulangi Seluruh Materi">
+                        <i class="fa-solid fa-rotate-left"></i> Ulangi
+                    </button>
+                </div>
+            </div>
+
+            <!-- 9 Interactive 3D Grid Buttons -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- 1. Tujuan Pembelajaran -->
+                <button onclick="openModule('tujuan')" class="canva-card bg-white dark:bg-darkCard p-6 rounded-2xl text-left border border-slate-200 dark:border-slate-800 hover:border-[#2EC4B6] group transition">
+                    <div class="w-14 h-14 rounded-2xl bg-purple-100 dark:bg-purple-900/40 text-[#3C096C] dark:text-[#2EC4B6] flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition shadow-inner">
+                        📌
+                    </div>
+                    <h3 class="font-bold text-lg text-slate-800 dark:text-white group-hover:text-[#2EC4B6]">Tujuan Pembelajaran</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">Target kemampuan mengidentifikasi fakta & opini artikel populer.</p>
+                </button>
+
+                <!-- 2. Apersepsi -->
+                <button onclick="openModule('apersepsi')" class="canva-card bg-white dark:bg-darkCard p-6 rounded-2xl text-left border border-slate-200 dark:border-slate-800 hover:border-[#2EC4B6] group transition">
+                    <div class="w-14 h-14 rounded-2xl bg-teal-100 dark:bg-teal-900/40 text-[#2EC4B6] flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition shadow-inner">
+                        📌
+                    </div>
+                    <h3 class="font-bold text-lg text-slate-800 dark:text-white group-hover:text-[#2EC4B6]">Apersepsi</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">Gambar & pertanyaan pemantik rasa ingin tahu Murid.</p>
+                </button>
+
+                <!-- 3. Asesmen Awal -->
+                <button onclick="openModule('asesmenAwal')" class="canva-card bg-white dark:bg-darkCard p-6 rounded-2xl text-left border border-slate-200 dark:border-slate-800 hover:border-[#2EC4B6] group transition">
+                    <div class="w-14 h-14 rounded-2xl bg-yellow-100 dark:bg-yellow-900/40 text-yellow-600 flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition shadow-inner">
+                        📌
+                    </div>
+                    <h3 class="font-bold text-lg text-slate-800 dark:text-white group-hover:text-[#2EC4B6]">Asesmen Awal</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">5 Soal tes diagnostik pemahaman dasar murid.</p>
+                </button>
+
+                <!-- 4. Materi Pembelajaran -->
+                <button onclick="openModule('materi')" class="canva-card bg-white dark:bg-darkCard p-6 rounded-2xl text-left border border-slate-200 dark:border-slate-800 hover:border-[#2EC4B6] group transition">
+                    <div class="w-14 h-14 rounded-2xl bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition shadow-inner">
+                        📌
+                    </div>
+                    <h3 class="font-bold text-lg text-slate-800 dark:text-white group-hover:text-[#2EC4B6]">Materi Pembelajaran</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">Konsep, infografis, tabel perbandingan, & info penting.</p>
+                </button>
+
+                <!-- 5. Simulasi / Aktivitas -->
+                <button onclick="openModule('simulasi')" class="canva-card bg-white dark:bg-darkCard p-6 rounded-2xl text-left border border-slate-200 dark:border-slate-800 hover:border-[#2EC4B6] group transition">
+                    <div class="w-14 h-14 rounded-2xl bg-green-100 dark:bg-green-900/40 text-green-600 flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition shadow-inner">
+                        📌
+                    </div>
+                    <h3 class="font-bold text-lg text-slate-800 dark:text-white group-hover:text-[#2EC4B6]">Simulasi / Aktivitas</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">Aktivitas Drag and Drop pemilahan fakta dan opini.</p>
+                </button>
+
+                <!-- 6. Kuis -->
+                <button onclick="openModule('kuis')" class="canva-card bg-white dark:bg-darkCard p-6 rounded-2xl text-left border border-slate-200 dark:border-slate-800 hover:border-[#2EC4B6] group transition">
+                    <div class="w-14 h-14 rounded-2xl bg-orange-100 dark:bg-orange-900/40 text-orange-600 flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition shadow-inner">
+                        📌
+                    </div>
+                    <h3 class="font-bold text-lg text-slate-800 dark:text-white group-hover:text-[#2EC4B6]">Kuis Interaktif</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">10 Soal HOTS berbasis konteks cerita & pembahasan.</p>
+                </button>
+
+                <!-- 7. Asesmen Akhir -->
+                <button onclick="openModule('asesmenAkhir')" class="canva-card bg-white dark:bg-darkCard p-6 rounded-2xl text-left border border-slate-200 dark:border-slate-800 hover:border-[#2EC4B6] group transition">
+                    <div class="w-14 h-14 rounded-2xl bg-red-100 dark:bg-red-900/40 text-red-600 flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition shadow-inner">
+                        📌
+                    </div>
+                    <h3 class="font-bold text-lg text-slate-800 dark:text-white group-hover:text-[#2EC4B6]">Asesmen Akhir</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">10 Soal evaluasi penentu nilai akhir & predikat belajar.</p>
+                </button>
+
+                <!-- 8. Refleksi -->
+                <button onclick="openModule('refleksi')" class="canva-card bg-white dark:bg-darkCard p-6 rounded-2xl text-left border border-slate-200 dark:border-slate-800 hover:border-[#2EC4B6] group transition">
+                    <div class="w-14 h-14 rounded-2xl bg-[#2EC4B6]/20 text-[#2EC4B6] flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition shadow-inner">
+                        📌
+                    </div>
+                    <h3 class="font-bold text-lg text-slate-800 dark:text-white group-hover:text-[#2EC4B6]">Refleksi</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">Isi kesan, emoticon, & jurnal pengalaman belajarmu.</p>
+                </button>
+
+                <!-- 9. Sertifikat Hasil Belajar -->
+                <button onclick="openModule('sertifikat')" class="canva-card bg-white dark:bg-darkCard p-6 rounded-2xl text-left border border-slate-200 dark:border-slate-800 hover:border-[#2EC4B6] group transition">
+                    <div class="w-14 h-14 rounded-2xl bg-pink-100 dark:bg-pink-900/40 text-pink-600 flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition shadow-inner">
+                        📌
+                    </div>
+                    <h3 class="font-bold text-lg text-slate-800 dark:text-white group-hover:text-[#2EC4B6]">Sertifikat Hasil Belajar</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">Cetak sertifikat A4 digital dengan nilai akhirmu!</p>
+                </button>
+            </div>
+        </section>
+
+        <!-- MODULE CONTAINER (HIDDEN BY DEFAULT) -->
+        <div id="moduleView" class="hidden">
+            <!-- Navigation Sub-header -->
+            <div class="flex justify-between items-center mb-6 bg-white dark:bg-darkCard p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
+                <button onclick="backToMenu()" class="px-4 py-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 font-semibold rounded-lg text-xs sm:text-sm flex items-center gap-2 text-slate-800 dark:text-white">
+                    <i class="fa-solid fa-arrow-left"></i> Menu Utama
+                </button>
+                <span id="moduleTitleHeader" class="font-extrabold text-[#3C096C] dark:text-[#2EC4B6] text-sm sm:text-base">MODUL</span>
+                <div class="flex items-center gap-2">
+                    <button onclick="speakContent()" class="px-3 py-1.5 bg-[#2EC4B6]/20 text-[#2EC4B6] hover:bg-[#2EC4B6]/30 font-semibold rounded-lg text-xs flex items-center gap-1">
+                        <i class="fa-solid fa-volume-high"></i> Baca Layar
+                    </button>
+                </div>
+            </div>
+
+            <!-- MODULE 1: TUJUAN PEMBELAJARAN -->
+            <div id="modul-tujuan" class="module-content hidden bg-white dark:bg-darkCard rounded-3xl p-6 sm:p-10 shadow-lg border-t-8 border-[#3C096C]">
+                <div class="text-center max-w-3xl mx-auto space-y-6">
+                    <span class="text-5xl block">🎯</span>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-[#3C096C] dark:text-[#2EC4B6]">Tujuan Pembelajaran</h2>
+                    <div class="bg-purple-50 dark:bg-purple-950/50 p-6 rounded-2xl border border-purple-200 dark:border-purple-800 text-left space-y-4">
+                        <p class="text-slate-700 dark:text-slate-200 text-base leading-relaxed font-semibold">
+                            Capaian Pembelajaran (Deep Learning):
+                        </p>
+                        <ul class="list-disc list-inside space-y-3 text-slate-700 dark:text-slate-200 text-sm sm:text-base">
+                            <li>Peserta didik dapat <span class="text-[#3C096C] dark:text-[#2EC4B6] font-bold">membedakan</span> kalimat fakta dan opini dalam teks artikel ilmiah populer secara tepat.</li>
+                            <li>Peserta didik dapat <span class="text-[#2EC4B6] font-bold">mengidentifikasi</span> keberadaan bukti fakta dan sudut pandang opini dalam sebuah artikel ilmiah populer secara kritis.</li>
+                            <li>Peserta didik mampu menerapkan literasi informasi untuk menyaring kabar bohong (hoaks) dalam kehidupan sehari-hari.</li>
+                        </ul>
+                    </div>
+                    <!-- Nav Next / Prev -->
+                    <div class="flex justify-end pt-4">
+                        <button onclick="openModule('apersepsi')" class="px-6 py-2.5 bg-[#2EC4B6] text-[#3C096C] font-bold rounded-xl shadow hover:bg-teal-400 flex items-center gap-2">
+                            Selanjutnya: Apersepsi <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MODULE 2: APERSEPSI -->
+            <div id="modul-apersepsi" class="module-content hidden bg-white dark:bg-darkCard rounded-3xl p-6 sm:p-10 shadow-lg border-t-8 border-[#2EC4B6]">
+                <div class="max-w-4xl mx-auto space-y-6">
+                    <div class="text-center">
+                        <span class="text-5xl mb-2 block">💡</span>
+                        <h2 class="text-2xl sm:text-3xl font-extrabold text-[#3C096C] dark:text-[#2EC4B6]">Apersepsi: Pengamat Sains Cilik!</h2>
+                        <p class="text-slate-500 text-sm">Mari membangkitkan rasa ingin tahu sebelum masuk ke materi utama.</p>
+                    </div>
+
+                    <!-- Gambar Pemantik Canva Style -->
+                    <div class="bg-gradient-to-br from-[#3C096C] to-indigo-900 p-6 sm:p-8 rounded-2xl text-center text-white shadow-md relative overflow-hidden">
+                        <div class="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
+                            <i class="fa-solid fa-temperature-arrow-up text-6xl text-yellow-300 animate-bounce mb-3 block"></i>
+                            <p class="text-base sm:text-lg font-medium italic">
+                                "Berdasarkan rilis data BMKG tahun 2026, rata-rata suhu udara di wilayah perkotaan meningkat 1,2°C. Menurut pendapat saya, cuaca panas akhir-akhir ini sangat tidak tertahankan."
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Pertanyaan Pemantik -->
+                    <div class="space-y-4">
+                        <div class="p-4 bg-teal-50 dark:bg-teal-950/40 rounded-xl border-l-4 border-[#2EC4B6]">
+                            <h4 class="font-bold text-[#3C096C] dark:text-[#2EC4B6] mb-1">Pertanyaan Pemantik 1:</h4>
+                            <p class="text-sm text-slate-700 dark:text-slate-300">"Bagian manakah dari kalimat di atas yang dapat kamu buktikan kebenarannya secara nyata dengan data angka atau pengukuran?"</p>
+                        </div>
+                        <div class="p-4 bg-purple-50 dark:bg-purple-950/40 rounded-xl border-l-4 border-[#3C096C]">
+                            <h4 class="font-bold text-[#3C096C] dark:text-[#2EC4B6] mb-1">Pertanyaan Pemantik 2:</h4>
+                            <p class="text-sm text-slate-700 dark:text-slate-300">"Apa pendapatmu mengenai pernyataan kedua? Apakah setiap orang akan merasakan ketidaknyamanan yang persis sama?"</p>
+                        </div>
+                    </div>
+
+                    <!-- Nav Controls -->
+                    <div class="flex justify-between pt-4">
+                        <button onclick="openModule('tujuan')" class="px-5 py-2.5 bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-white font-bold rounded-xl">
+                            <i class="fa-solid fa-arrow-left"></i> Sebelumnya
+                        </button>
+                        <button onclick="openModule('asesmenAwal')" class="px-6 py-2.5 bg-[#2EC4B6] text-[#3C096C] font-bold rounded-xl shadow hover:bg-teal-400 flex items-center gap-2">
+                            Selanjutnya: Asesmen Awal <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MODULE 3: ASESMEN AWAL -->
+            <div id="modul-asesmenAwal" class="module-content hidden bg-white dark:bg-darkCard rounded-3xl p-6 sm:p-10 shadow-lg border-t-8 border-yellow-500">
+                <div class="max-w-3xl mx-auto">
+                    <div class="text-center mb-6">
+                        <span class="text-5xl mb-2 block">📝</span>
+                        <h2 class="text-2xl sm:text-3xl font-extrabold text-[#3C096C] dark:text-[#2EC4B6]">Asesmen Awal Diagnostik</h2>
+                        <p class="text-slate-500 text-sm">Jawab 5 soal pilihan ganda ini untuk mengukur pengetahuan awalmu!</p>
+                    </div>
+
+                    <div id="asesmenAwalContainer" class="space-y-6">
+                        <!-- Questions dynamically loaded via JS -->
+                    </div>
+
+                    <button onclick="checkAsesmenAwal()" class="w-full mt-6 py-3.5 bg-[#2EC4B6] hover:bg-teal-500 text-[#3C096C] font-extrabold rounded-xl shadow-md transition">
+                        Kirim & Lihat Umpan Balik Asesmen Awal
+                    </button>
+                    <div id="asesmenAwalResult" class="mt-4 p-4 rounded-xl hidden text-center font-bold"></div>
+
+                    <!-- Nav Controls -->
+                    <div class="flex justify-between pt-6">
+                        <button onclick="openModule('apersepsi')" class="px-5 py-2.5 bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-white font-bold rounded-xl">
+                            <i class="fa-solid fa-arrow-left"></i> Sebelumnya
+                        </button>
+                        <button onclick="openModule('materi')" class="px-6 py-2.5 bg-[#3C096C] text-white font-bold rounded-xl shadow hover:bg-purple-900 flex items-center gap-2">
+                            Selanjutnya: Materi <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MODULE 4: MATERI PEMBELAJARAN -->
+            <div id="modul-materi" class="module-content hidden bg-white dark:bg-darkCard rounded-3xl p-6 sm:p-10 shadow-lg border-t-8 border-indigo-600">
+                <div class="max-w-4xl mx-auto space-y-8">
+                    <div class="text-center">
+                        <span class="text-5xl mb-2 block">📚</span>
+                        <h2 class="text-2xl sm:text-3xl font-extrabold text-[#3C096C] dark:text-[#2EC4B6]">Materi: Fakta & Opini Artikel Ilmiah Populer</h2>
+                        <p class="text-slate-500 text-sm">Disajikan secara visual dan mudah dipahami oleh Murid SMP</p>
+                    </div>
+
+                    <!-- Paragraph Explanation -->
+                    <div class="bg-slate-50 dark:bg-slate-800/60 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-3 text-slate-700 dark:text-slate-300 leading-relaxed text-sm sm:text-base">
+                        <p>
+                            <strong>Artikel Ilmiah Populer</strong> adalah karya tulis ilmu pengetahuan yang disajikan dengan gaya bahasa yang santai, populer, serta mudah dimengerti oleh masyarakat umum. Dalam sebuah artikel ilmiah populer, penulis menggabungkan data objektif dengan analisis atau gagasan pikirannya.
+                        </p>
+                    </div>
+
+                    <!-- Tabel Ciri-ciri -->
+                    <div>
+                        <h3 class="font-bold text-lg text-[#3C096C] dark:text-[#2EC4B6] mb-3">Tabel Perbedaan Ciri-Ciri Utama:</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse rounded-xl overflow-hidden shadow-sm">
+                                <thead>
+                                    <tr class="bg-[#3C096C] text-white text-sm">
+                                        <th class="p-4">Aspek Penilaian</th>
+                                        <th class="p-4 bg-purple-800">Kalimat FAKTA</th>
+                                        <th class="p-4 bg-teal-700">Kalimat OPINI</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-200 dark:divide-slate-700 bg-slate-50 dark:bg-slate-800/50 text-xs sm:text-sm">
+                                    <tr>
+                                        <td class="p-4 font-bold">Kebenaran</td>
+                                        <td class="p-4">Objektif (Sudah teruji & ada bukti nyata)</td>
+                                        <td class="p-4">Subjektif (Sesuai sudut pandang pribadi)</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-4 font-bold">Data Pendukung</td>
+                                        <td class="p-4">Memiliki angka statistik, tanggal, nama tempat, riset</td>
+                                        <td class="p-4">Menggunakan kata sifat/dugaan (sebaiknya, mungkin, sangat)</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-4 font-bold">Karakteristik</td>
+                                        <td class="p-4">Menjelaskan hal yang benar-benar terjadi</td>
+                                        <td class="p-4">Menunjukkan perkiraan, tanggapan, atau saran masa depan</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Tosca Information Boxes -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="bg-[#2EC4B6]/20 p-5 rounded-2xl border-2 border-[#2EC4B6]">
+                            <h4 class="font-bold text-[#3C096C] dark:text-[#2EC4B6] flex items-center gap-2 mb-2">
+                                <i class="fa-solid fa-lightbulb text-yellow-500"></i> Tahukah Kamu?
+                            </h4>
+                            <p class="text-xs text-slate-700 dark:text-slate-300">
+                                Artikel ilmiah populer biasanya dipublikasikan di koran, majalah remaja, atau portal berita sains digital agar mudah dibaca siapa saja!
+                            </p>
+                        </div>
+                        <div class="bg-[#2EC4B6]/20 p-5 rounded-2xl border-2 border-[#2EC4B6]">
+                            <h4 class="font-bold text-[#3C096C] dark:text-[#2EC4B6] flex items-center gap-2 mb-2">
+                                <i class="fa-solid fa-[#2EC4B6] fa-star text-amber-500"></i> Fakta Menarik
+                            </h4>
+                            <p class="text-xs text-slate-700 dark:text-slate-300">
+                                Kalimat fakta menjawab pertanyaan 5W1H (Apa, Siapa, Kapan, Di mana, Berapa) secara eksplisit dan terukur.
+                            </p>
+                        </div>
+                        <div class="bg-[#2EC4B6]/20 p-5 rounded-2xl border-2 border-[#2EC4B6]">
+                            <h4 class="font-bold text-[#3C096C] dark:text-[#2EC4B6] flex items-center gap-2 mb-2">
+                                <i class="fa-solid fa-circle-exclamation text-red-500"></i> Info Penting
+                            </h4>
+                            <p class="text-xs text-slate-700 dark:text-slate-300">
+                                Kata kunci penanda opini antara lain: *menurut saya, dinilai, disarankan, sangat bagus, diperkirakan, alangkah baiknya*.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Nav Controls -->
+                    <div class="flex justify-between pt-4">
+                        <button onclick="openModule('asesmenAwal')" class="px-5 py-2.5 bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-white font-bold rounded-xl">
+                            <i class="fa-solid fa-arrow-left"></i> Sebelumnya
+                        </button>
+                        <button onclick="openModule('simulasi')" class="px-6 py-2.5 bg-[#2EC4B6] text-[#3C096C] font-bold rounded-xl shadow hover:bg-teal-400 flex items-center gap-2">
+                            Selanjutnya: Simulasi <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MODULE 5: SIMULASI INTERAKTIF (DRAG AND DROP) -->
+            <div id="modul-simulasi" class="module-content hidden bg-white dark:bg-darkCard rounded-3xl p-6 sm:p-10 shadow-lg border-t-8 border-green-500">
+                <div class="max-w-4xl mx-auto space-y-6">
+                    <div class="text-center">
+                        <span class="text-5xl mb-2 block">🎮</span>
+                        <h2 class="text-2xl sm:text-3xl font-extrabold text-[#3C096C] dark:text-[#2EC4B6]">Simulasi Interaktif: Milah Kalimat</h2>
+                        <p class="text-slate-500 text-sm">Tarik (Drag) kartu pernyataan di bawah ini lalu tempatkan (Drop) ke kotak FAKTA atau OPINI yang tepat!</p>
+                    </div>
+
+                    <!-- Draggable Cards Container -->
+                    <div id="simulasiItems" class="flex flex-wrap gap-3 justify-center p-4 bg-slate-100 dark:bg-slate-800 rounded-2xl min-h-[100px] border border-slate-200 dark:border-slate-700">
+                        <div draggable="true" ondragstart="drag(event)" id="drag1" class="bg-white dark:bg-slate-700 p-3.5 rounded-xl shadow border border-slate-300 dark:border-slate-600 text-xs sm:text-sm font-semibold cursor-grab active:cursor-grabbing hover:scale-105 transition">
+                            📌 Candi Borobudur didirikan pada abad ke-9 oleh Dinasti Syailendra.
+                        </div>
+                        <div draggable="true" ondragstart="drag(event)" id="drag2" class="bg-white dark:bg-slate-700 p-3.5 rounded-xl shadow border border-slate-300 dark:border-slate-600 text-xs sm:text-sm font-semibold cursor-grab active:cursor-grabbing hover:scale-105 transition">
+                            📌 Menurut saya, pemandangan matahari terbit di Gunung Bromo adalah yang terindah di dunia.
+                        </div>
+                        <div draggable="true" ondragstart="drag(event)" id="drag3" class="bg-white dark:bg-slate-700 p-3.5 rounded-xl shadow border border-slate-300 dark:border-slate-600 text-xs sm:text-sm font-semibold cursor-grab active:cursor-grabbing hover:scale-105 transition">
+                            📌 Air memeku menjadi es pada suhu 0 derajat Celsius.
+                        </div>
+                        <div draggable="true" ondragstart="drag(event)" id="drag4" class="bg-white dark:bg-slate-700 p-3.5 rounded-xl shadow border border-slate-300 dark:border-slate-600 text-xs sm:text-sm font-semibold cursor-grab active:cursor-grabbing hover:scale-105 transition">
+                            📌 Sebaiknya sekolah menambah jam istirahat agar siswa tidak terlalu lelah.
+                        </div>
+                    </div>
+
+                    <!-- Drop Target Boxes -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Box Fakta -->
+                        <div ondrop="drop(event, 'FAKTA')" ondragover="allowDrop(event)" id="boxFakta" class="bg-purple-50 dark:bg-purple-950/40 p-5 rounded-2xl border-2 border-dashed border-[#3C096C] min-h-[200px] flex flex-col items-center">
+                            <h3 class="font-bold text-[#3C096C] dark:text-[#2EC4B6] mb-2 flex items-center gap-2">
+                                <i class="fa-solid fa-circle-check"></i> KOTAK FAKTA
+                            </h3>
+                            <p class="text-xs text-slate-400 mb-3">Tarik kalimat fakta ke area ini</p>
+                            <div class="target-area w-full space-y-2"></div>
+                        </div>
+
+                        <!-- Box Opini -->
+                        <div ondrop="drop(event, 'OPINI')" ondragover="allowDrop(event)" id="boxOpini" class="bg-teal-50 dark:bg-teal-950/40 p-5 rounded-2xl border-2 border-dashed border-[#2EC4B6] min-h-[200px] flex flex-col items-center">
+                            <h3 class="font-bold text-[#2EC4B6] mb-2 flex items-center gap-2">
+                                <i class="fa-solid fa-comments"></i> KOTAK OPINI
+                            </h3>
+                            <p class="text-xs text-slate-400 mb-3">Tarik kalimat opini ke area ini</p>
+                            <div class="target-area w-full space-y-2"></div>
+                        </div>
+                    </div>
+
+                    <button onclick="checkSimulasi()" class="w-full py-3.5 bg-[#3C096C] text-white hover:bg-purple-900 font-bold rounded-xl shadow-md transition">
+                        Periksa Hasil Simulasi
+                    </button>
+                    <div id="simulasiFeedback" class="p-4 rounded-xl hidden text-center font-medium"></div>
+
+                    <!-- Nav Controls -->
+                    <div class="flex justify-between pt-4">
+                        <button onclick="openModule('materi')" class="px-5 py-2.5 bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-white font-bold rounded-xl">
+                            <i class="fa-solid fa-arrow-left"></i> Sebelumnya
+                        </button>
+                        <button onclick="openModule('kuis')" class="px-6 py-2.5 bg-[#2EC4B6] text-[#3C096C] font-bold rounded-xl shadow hover:bg-teal-400 flex items-center gap-2">
+                            Selanjutnya: Kuis HOTS <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MODULE 6: KUIS INTERAKTIF HOTS -->
+            <div id="modul-kuis" class="module-content hidden bg-white dark:bg-darkCard rounded-3xl p-6 sm:p-10 shadow-lg border-t-8 border-orange-500">
+                <div class="max-w-3xl mx-auto space-y-6">
+                    <div class="flex justify-between items-center bg-slate-100 dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+                        <div>
+                            <span class="text-xs text-slate-500 font-bold uppercase tracking-wider">Kuis HOTS Berbasis Cerita</span>
+                            <h3 class="font-bold text-base text-[#3C096C] dark:text-[#2EC4B6]" id="kuisProgressText">Soal 1 dari 10</h3>
+                        </div>
+                        <div class="flex items-center gap-2 font-mono font-bold text-red-500 bg-red-50 dark:bg-red-950/50 px-3 py-1.5 rounded-lg border border-red-200">
+                            <i class="fa-solid fa-stopwatch animate-pulse"></i>
+                            <span id="kuisTimer">05:00</span>
+                        </div>
+                    </div>
+
+                    <div id="kuisContainer" class="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-2xl border border-slate-200 dark:border-slate-700">
+                        <!-- Dynamic Question Card -->
+                    </div>
+
+                    <div id="kuisPembahasan" class="hidden p-4 rounded-xl bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-800 text-xs sm:text-sm text-slate-800 dark:text-slate-200"></div>
+
+                    <div class="flex justify-between gap-4">
+                        <button id="btnKuisPrev" onclick="prevKuis()" class="px-5 py-2.5 bg-slate-300 dark:bg-slate-700 text-slate-800 dark:text-white font-bold rounded-xl disabled:opacity-50">
+                            Sebelumnya
+                        </button>
+                        <button id="btnKuisNext" onclick="nextKuis()" class="px-5 py-2.5 bg-[#2EC4B6] hover:bg-teal-500 text-[#3C096C] font-bold rounded-xl shadow">
+                            Berikutnya
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MODULE 7: ASESMEN AKHIR -->
+            <div id="modul-asesmenAkhir" class="module-content hidden bg-white dark:bg-darkCard rounded-3xl p-6 sm:p-10 shadow-lg border-t-8 border-red-600">
+                <div class="max-w-3xl mx-auto space-y-6">
+                    <div class="text-center mb-6">
+                        <span class="text-5xl mb-2 block">🏆</span>
+                        <h2 class="text-2xl sm:text-3xl font-extrabold text-[#3C096C] dark:text-[#2EC4B6]">Asesmen Akhir Pembelajaran</h2>
+                        <p class="text-slate-500 text-sm">Kerjakan 10 soal evaluasi berikut untuk memperoleh Nilai Akhir & Predikat!</p>
+                    </div>
+
+                    <div id="asesmenAkhirContainer" class="space-y-6">
+                        <!-- 10 Questions injected here -->
+                    </div>
+
+                    <button onclick="submitAsesmenAkhir()" class="w-full py-4 bg-[#3C096C] text-white hover:bg-purple-900 font-bold rounded-xl shadow-lg border-b-4 border-[#2EC4B6] transition text-lg btn-3d">
+                        HITUNG NILAI AKHIR & PREDIKAT
+                    </button>
+
+                    <!-- Result Panel -->
+                    <div id="finalScoreCard" class="hidden bg-gradient-to-br from-[#3C096C] to-indigo-950 text-white p-8 rounded-2xl text-center space-y-4 shadow-xl border-2 border-[#2EC4B6]">
+                        <h3 class="text-xl font-bold text-[#2EC4B6]">HASIL EVALUASI AKHIR</h3>
+                        <div class="text-6xl font-extrabold my-2 text-yellow-300" id="finalScoreNum">0</div>
+                        <div class="text-lg">Predikat Belajar: <span id="finalPredikat" class="font-bold text-[#2EC4B6]">Perlu Bimbingan</span></div>
+                        <p class="text-xs text-slate-300" id="finalNote">Nilaimu sudah disimpan untuk pencetakan Sertifikat Hasil Belajar!</p>
+                    </div>
+
+                    <!-- Nav Controls -->
+                    <div class="flex justify-between pt-4">
+                        <button onclick="openModule('kuis')" class="px-5 py-2.5 bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-white font-bold rounded-xl">
+                            <i class="fa-solid fa-arrow-left"></i> Sebelumnya
+                        </button>
+                        <button onclick="openModule('refleksi')" class="px-6 py-2.5 bg-[#2EC4B6] text-[#3C096C] font-bold rounded-xl shadow hover:bg-teal-400 flex items-center gap-2">
+                            Selanjutnya: Refleksi <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MODULE 8: REFLEKSI -->
+            <div id="modul-refleksi" class="module-content hidden bg-white dark:bg-darkCard rounded-3xl p-6 sm:p-10 shadow-lg border-t-8 border-[#2EC4B6]">
+                <div class="max-w-3xl mx-auto space-y-6">
+                    <div class="text-center">
+                        <span class="text-5xl mb-2 block">🪞</span>
+                        <h2 class="text-2xl sm:text-3xl font-extrabold text-[#3C096C] dark:text-[#2EC4B6]">Refleksi Belajar Murid</h2>
+                        <p class="text-slate-500 text-sm">Ungkapkan pemahaman dan pengalaman belajarmu hari ini.</p>
+                    </div>
+
+                    <!-- Emoticon Selector -->
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-200 mb-3 text-center">Pilih emoticon perasaan belajar hari ini:</label>
+                        <div class="flex justify-center gap-4 text-3xl">
+                            <button onclick="selectEmo(this, '🤩 Sangat Suka')" class="emo-btn p-3.5 bg-slate-100 dark:bg-slate-800 rounded-2xl hover:scale-125 transition">🤩</button>
+                            <button onclick="selectEmo(this, '😊 Senang')" class="emo-btn p-3.5 bg-slate-100 dark:bg-slate-800 rounded-2xl hover:scale-125 transition">😊</button>
+                            <button onclick="selectEmo(this, '🤔 Paham')" class="emo-btn p-3.5 bg-slate-100 dark:bg-slate-800 rounded-2xl hover:scale-125 transition">🤔</button>
+                            <button onclick="selectEmo(this, '😅 Bingung')" class="emo-btn p-3.5 bg-slate-100 dark:bg-slate-800 rounded-2xl hover:scale-125 transition">😅</button>
+                        </div>
+                    </div>
+
+                    <!-- Reflection Prompts -->
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-semibold mb-1">1. Saya sudah memahami bahwa...</label>
+                            <textarea id="ref1" rows="2" class="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm outline-none focus:ring-2 focus:ring-[#2EC4B6]" placeholder="Tuliskan pemahamanmu..."></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold mb-1">2. Hal yang paling menarik adalah...</label>
+                            <textarea id="ref2" rows="2" class="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm outline-none focus:ring-2 focus:ring-[#2EC4B6]" placeholder="Tuliskan hal menarik..."></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold mb-1">3. Hal yang masih membingungkan adalah...</label>
+                            <textarea id="ref3" rows="2" class="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm outline-none focus:ring-2 focus:ring-[#2EC4B6]" placeholder="Tulis hal yang membingungkan..."></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold mb-1">4. Rencana saya setelah belajar materi ini adalah...</label>
+                            <textarea id="ref4" rows="2" class="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm outline-none focus:ring-2 focus:ring-[#2EC4B6]" placeholder="Tuliskan rencanamu..."></textarea>
+                        </div>
+                    </div>
+
+                    <button onclick="saveRefleksi()" class="w-full py-3.5 bg-[#2EC4B6] text-[#3C096C] font-extrabold rounded-xl shadow hover:bg-teal-400 transition">
+                        Simpan Refleksi Belajar
+                    </button>
+                    <div id="refleksiAlert" class="hidden p-3 bg-green-100 text-green-800 rounded-xl text-center text-sm font-bold">Refleksi Berhasil Disimpan!</div>
+
+                    <!-- Nav Controls -->
+                    <div class="flex justify-between pt-4">
+                        <button onclick="openModule('asesmenAkhir')" class="px-5 py-2.5 bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-white font-bold rounded-xl">
+                            <i class="fa-solid fa-arrow-left"></i> Sebelumnya
+                        </button>
+                        <button onclick="openModule('sertifikat')" class="px-6 py-2.5 bg-[#3C096C] text-white font-bold rounded-xl shadow hover:bg-purple-900 flex items-center gap-2">
+                            Selanjutnya: Sertifikat <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MODULE 9: SERTIFIKAT HASIL BELAJAR (A4 LANDSCAPE) -->
+            <div id="modul-sertifikat" class="module-content hidden bg-white dark:bg-darkCard rounded-3xl p-6 sm:p-10 shadow-lg border-t-8 border-pink-500">
+                <div class="max-w-4xl mx-auto space-y-6">
+                    <div class="text-center">
+                        <span class="text-5xl mb-2 block">📜</span>
+                        <h2 class="text-2xl sm:text-3xl font-extrabold text-[#3C096C] dark:text-[#2EC4B6]">Sertifikat Hasil Belajar</h2>
+                        <p class="text-slate-500 text-sm">Cetak & Unduh Sertifikat Hasil Belajar A4 milikmu!</p>
+                    </div>
+
+                    <!-- CERTIFICATE CANVAS RENDER CONTAINER (A4 Aspect Ratio) -->
+                    <div class="overflow-x-auto flex justify-center">
+                        <div id="certificateCard" class="w-[800px] h-[565px] bg-[#3C096C] p-8 text-white relative flex flex-col justify-between border-8 border-[#2EC4B6] shadow-2xl rounded-xl">
+                            <!-- Canva Decorative Shapes -->
+                            <div class="absolute top-0 left-0 w-28 h-28 bg-[#2EC4B6] rounded-br-full opacity-30"></div>
+                            <div class="absolute bottom-0 right-0 w-28 h-28 bg-[#2EC4B6] rounded-tl-full opacity-30"></div>
+
+                            <!-- Header -->
+                            <div class="text-center relative z-10">
+                                <h1 class="text-3xl font-black tracking-widest text-[#2EC4B6] uppercase">SERTIFIKAT PENGHARGAAN</h1>
+                                <p class="text-xs text-slate-300 mt-1">Diberikan atas Penyelesaian Media Pembelajaran Interaktif (MPI)</p>
+                            </div>
+
+                            <!-- Body Content -->
+                            <div class="text-center space-y-3 relative z-10">
+                                <p class="text-xs italic text-slate-200">Sertifikat ini secara resmi diberikan kepada:</p>
+                                <h2 id="certName" class="text-3xl font-black text-yellow-300 underline underline-offset-8">NAMA MURID</h2>
+                                <p id="certClass" class="text-sm font-semibold text-slate-200">Kelas: VIII A</p>
+
+                                <div class="w-3/4 mx-auto border-b border-white/20 my-2"></div>
+
+                                <p class="text-xs text-slate-300 max-w-lg mx-auto leading-relaxed">
+                                    Telah menguasai kompetensi dasar materi: <br>
+                                    <strong class="text-[#2EC4B6] text-sm">"Mengidentifikasi Fakta dan Opini dalam Teks Artikel Ilmiah Populer"</strong>
+                                </p>
+
+                                <div class="inline-block bg-white/10 px-6 py-2 rounded-xl border border-white/20 mt-2">
+                                    <div class="text-xs text-slate-300">Nilai Akhir Belajar:</div>
+                                    <div id="certScore" class="text-2xl font-black text-yellow-400">100 (Sangat Baik)</div>
+                                </div>
+                            </div>
+
+                            <!-- Footer Certificate -->
+                            <div class="flex justify-between items-end text-xs relative z-10">
+                                <div>
+                                    <p class="text-slate-400">Tanggal Belajar:</p>
+                                    <p id="certDate" class="font-bold text-[#2EC4B6]">31 Oktober 2026</p>
+                                </div>
+                                <div class="text-center">
+                                    <div class="w-14 h-14 rounded-full border-2 border-yellow-400 flex items-center justify-center mx-auto mb-1 bg-yellow-400/20 text-yellow-400 text-xl font-bold">
+                                        ★
+                                    </div>
+                                    <p class="font-bold text-slate-200">Guru / Pengembang Media</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Download Controls -->
+                    <div class="flex flex-wrap justify-center gap-4 pt-4">
+                        <button onclick="downloadCertificate()" class="px-8 py-3 bg-[#2EC4B6] hover:bg-teal-400 text-[#3C096C] font-extrabold rounded-xl shadow-lg transition flex items-center gap-2">
+                            <i class="fa-solid fa-download"></i> Unduh Sertifikat (PNG A4)
+                        </button>
+                        <button onclick="downloadReport()" class="px-6 py-3 bg-purple-800 hover:bg-purple-900 text-white font-bold rounded-xl shadow transition flex items-center gap-2">
+                            <i class="fa-solid fa-file-invoice"></i> Download Hasil Belajar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-[#3C096C] text-white border-t border-purple-900 py-6 mt-12">
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-300 space-y-2">
+            <p class="font-bold text-[#2EC4B6]">Media Pembelajaran Interaktif (MPI) • Mengidentifikasi Fakta & Opini</p>
+            <p>Dirancang untuk Murid SMP Kelas VIII berdasarkan Prinsip Pembelajaran Mendalam (Deep Learning)</p>
+            <p class="text-slate-500">© 2026 Ahli Desain Pembelajaran & Pengembang Media Canva Web</p>
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // GLOBAL STATE DATA
+        let studentData = {
+            name: '',
+            class: '',
+            asesmenAwalScore: 0,
+            kuisScore: 0,
+            asesmenAkhirScore: 0,
+            refleksi: {}
+        };
+
+        let isAudioPlaying = false;
+        let ttsActive = false;
+
+        // 1. LOGIN HANDLER
+        function toggleManualClass(val) {
+            const manualDiv = document.getElementById('manualClassDiv');
+            if (val === 'MANUAL') {
+                manualDiv.classList.remove('hidden');
+            } else {
+                manualDiv.classList.add('hidden');
+            }
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const name = document.getElementById('inputName').value.trim();
+            const selectClass = document.getElementById('selectClass').value;
+            const manualClass = document.getElementById('inputManualClass').value.trim();
+
+            if (!name) return;
+
+            studentData.name = name;
+            studentData.class = (selectClass === 'MANUAL') ? (manualClass || 'VIII') : selectClass;
+
+            // Update UI elements
+            document.getElementById('welcomeName').innerText = studentData.name;
+            document.getElementById('badgeName').innerText = studentData.name;
+            document.getElementById('badgeClass').innerText = studentData.class;
+            document.getElementById('studentBadge').classList.remove('hidden');
+
+            // Hide login, show menu
+            document.getElementById('loginSection').classList.add('hidden');
+            document.getElementById('menuSection').classList.remove('hidden');
+
+            // Update Cert preview default
+            document.getElementById('certName').innerText = studentData.name;
+            document.getElementById('certClass').innerText = 'Kelas: ' + studentData.class;
+            document.getElementById('certDate').innerText = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+
+            updateProgress(10);
+            speakText("Selamat datang " + studentData.name + " di Media Pembelajaran Interaktif Kelas delapan.");
+        }
+
+        // 2. NAVIGATION HANDLERS
+        function openModule(modId) {
+            document.getElementById('menuSection').classList.add('hidden');
+            document.getElementById('moduleView').classList.remove('hidden');
+
+            // Hide all modules
+            document.querySelectorAll('.module-content').forEach(el => el.classList.add('hidden'));
+
+            // Show selected
+            const target = document.getElementById('modul-' + modId);
+            if (target) target.classList.remove('hidden');
+
+            // Update Header Title
+            const titleMap = {
+                'tujuan': '📌 1. TUJUAN PEMBELAJARAN',
+                'apersepsi': '📌 2. APERSEPSI',
+                'asesmenAwal': '📌 3. ASESMEN AWAL',
+                'materi': '📌 4. MATERI PEMBELAJARAN',
+                'simulasi': '📌 5. SIMULASI / AKTIVITAS',
+                'kuis': '📌 6. KUIS INTERAKTIF HOTS',
+                'asesmenAkhir': '📌 7. ASESMEN AKHIR',
+                'refleksi': '📌 8. REFLEKSI BELAJAR',
+                'sertifikat': '📌 9. SERTIFIKAT HASIL BELAJAR'
+            };
+            document.getElementById('moduleTitleHeader').innerText = titleMap[modId] || 'MODUL';
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function backToMenu() {
+            document.getElementById('moduleView').classList.add('hidden');
+            document.getElementById('menuSection').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function goToHome() {
+            if (studentData.name) {
+                backToMenu();
+            } else {
+                document.getElementById('loginSection').classList.remove('hidden');
+                document.getElementById('menuSection').classList.add('hidden');
+                document.getElementById('moduleView').classList.add('hidden');
+            }
+        }
+
+        function updateProgress(percent) {
+            const current = parseInt(document.getElementById('progressBar').style.width || 0);
+            const newProgress = Math.max(current, percent);
+            document.getElementById('progressBar').style.width = newProgress + '%';
+            document.getElementById('progressPercent').innerText = newProgress + '% Selesai';
+        }
+
+        function resetModuleProgress() {
+            document.getElementById('progressBar').style.width = '0%';
+            document.getElementById('progressPercent').innerText = '0% Selesai';
+            alert('Progress belajar berhasil diulang dari awal!');
+        }
+
+        // 3. AUDIO & TTS CONTROLS
+        function toggleAudio() {
+            const audio = document.getElementById('bgAudio');
+            const btn = document.getElementById('audioBtn');
+            if (isAudioPlaying) {
+                audio.pause();
+                btn.classList.remove('bg-teal-500', 'text-white');
+                isAudioPlaying = false;
+            } else {
+                audio.play().catch(e => console.log('Audio autoplay blocked'));
+                btn.classList.add('bg-teal-500', 'text-white');
+                isAudioPlaying = true;
+            }
+        }
+
+        function speakText(text) {
+            if (!('speechSynthesis' in window)) return;
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'id-ID';
+            utterance.rate = 0.9;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function toggleTTS() {
+            ttsActive = !ttsActive;
+            const btn = document.getElementById('ttsBtn');
+            if (ttsActive) {
+                btn.classList.add('bg-yellow-400', 'text-slate-900');
+                speakContent();
+            } else {
+                btn.classList.remove('bg-yellow-400', 'text-slate-900');
+                window.speechSynthesis.cancel();
+            }
+        }
+
+        function speakContent() {
+            const visibleMod = document.querySelector('.module-content:not(.hidden)');
+            if (visibleMod) {
+                speakText(visibleMod.innerText.substring(0, 300));
+            } else {
+                speakText("Halaman utama media pembelajaran interaktif.");
+            }
+        }
+
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark');
+        }
+
+        // 4. DATA ASESMEN AWAL (5 SOAL)
+        const dataAsesmenAwal = [
+            {
+                q: "1. Pengertian kalimat FAKTA dalam artikel ilmiah populer adalah...",
+                options: [
+                    "Kalimat yang memuat pendapat pribadi penulis",
+                    "Kalimat yang berisi informasi nyata yang dapat dibuktikan kebenarannya secara objektif",
+                    "Kalimat ramalan cuaca masa depan",
+                    "Kalimat saran bagi pembaca"
+                ],
+                ans: 1
+            },
+            {
+                q: "2. Ciri khas kalimat OPINI dalam artikel populer adalah...",
+                options: [
+                    "Menggunakan kata pendukung seperti 'sebaiknya', 'menurut saya', 'mungkin'",
+                    "Disertai angka tanggal pasti",
+                    "Menggunakan data hasil penelitian medis",
+                    "Memuat lokasi geografis presisi"
+                ],
+                ans: 0
+            },
+            {
+                q: "3. 'Danau Toba terletak di Provinsi Sumatera Utara.' Kalimat ini merupakan...",
+                options: ["Fakta", "Opini", "Saran", "Mitos"],
+                ans: 0
+            },
+            {
+                q: "4. Manakah di bawah ini yang tergolong kalimat OPINI?",
+                options: [
+                    "Harimau Sumatera adalah hewan pemakan daging.",
+                    "Pelajaran Bahasa Indonesia adalah pelajaran paling menyenangkan di sekolah.",
+                    "Bumi mengelilingi matahari.",
+                    "Indonesia merdeka pada tahun 1945."
+                ],
+                ans: 1
+            },
+            {
+                q: "5. Tujuan utama gaya tulisan artikel ilmiah populer disajikan secara santai adalah...",
+                options: [
+                    "Agar ilmu pengetahuan mudah dipahami oleh masyarakat umum/remaja",
+                    "Untuk menyembunyikan data asli",
+                    "Agar terlihat seperti cerita komik fiksi",
+                    "Menghilangkan fakta riset"
+                ],
+                ans: 0
+            }
+        ];
+
+        function renderAsesmenAwal() {
+            const container = document.getElementById('asesmenAwalContainer');
+            container.innerHTML = dataAsesmenAwal.map((item, idx) => `
+                <div class="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <p class="font-bold text-[#3C096C] dark:text-[#2EC4B6] mb-3">${item.q}</p>
+                    <div class="space-y-2">
+                        ${item.options.map((opt, oIdx) => `
+                            <label class="flex items-center space-x-3 p-2.5 bg-white dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600 cursor-pointer hover:bg-teal-50 dark:hover:bg-teal-900/30 transition">
+                                <input type="radio" name="awal_${idx}" value="${oIdx}" class="form-radio text-[#2EC4B6]">
+                                <span class="text-xs sm:text-sm text-slate-800 dark:text-slate-200">${opt}</span>
+                            </label>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function checkAsesmenAwal() {
+            let score = 0;
+            dataAsesmenAwal.forEach((item, idx) => {
+                const selected = document.querySelector(`input[name="awal_${idx}"]:checked`);
+                if (selected && parseInt(selected.value) === item.ans) {
+                    score += 20;
+                }
+            });
+            studentData.asesmenAwalScore = score;
+            const res = document.getElementById('asesmenAwalResult');
+            res.classList.remove('hidden');
+            res.className = `mt-4 p-4 rounded-xl text-center font-bold ${score >= 60 ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`;
+            res.innerText = `Skor Asesmen Awalmu: ${score}/100. ${score >= 60 ? 'Bagus! Pemahaman awalmu sudah cukup baik.' : 'Tetap semangat! Yuk pelajari materi lebih mendalam.'}`;
+            updateProgress(30);
+        }
+
+        // 5. SIMULASI DRAG & DROP LOGIC
+        function allowDrop(ev) {
+            ev.preventDefault();
+        }
+
+        function drag(ev) {
+            ev.dataTransfer.setData("text", ev.target.id);
+        }
+
+        function drop(ev, category) {
+            ev.preventDefault();
+            const data = ev.dataTransfer.getData("text");
+            const draggedEl = document.getElementById(data);
+            const targetContainer = ev.currentTarget.querySelector('.target-area');
+            targetContainer.appendChild(draggedEl);
+            draggedEl.dataset.userChoice = category;
+        }
+
+        function checkSimulasi() {
+            const correctAnswers = {
+                'drag1': 'FAKTA',
+                'drag2': 'OPINI',
+                'drag3': 'FAKTA',
+                'drag4': 'OPINI'
+            };
+            let correctCount = 0;
+            let total = 4;
+
+            for (let id in correctAnswers) {
+                const el = document.getElementById(id);
+                if (el && el.dataset.userChoice === correctAnswers[id]) {
+                    correctCount++;
+                    el.classList.add('border-2', 'border-green-500');
+                } else if (el) {
+                    el.classList.add('border-2', 'border-red-500');
+                }
+            }
+
+            const feedback = document.getElementById('simulasiFeedback');
+            feedback.classList.remove('hidden');
+            if (correctCount === total) {
+                feedback.className = "p-4 rounded-xl text-center font-bold bg-green-100 text-green-800";
+                feedback.innerText = "🎉 Luar Biasa! Semua kartu dipilah dengan benar! Terus kembangkan Growth Mindset-mu!";
+                confetti();
+            } else {
+                feedback.className = "p-4 rounded-xl text-center font-bold bg-amber-100 text-amber-800";
+                feedback.innerText = `Kamu benar ${correctCount} dari ${total}. Coba periksa kembali kata penanda opini dalam kalimat!`;
+            }
+            updateProgress(50);
+        }
+
+        // 6. KUIS HOTS (10 SOAL BERBASIS CERITA)
+        const dataKuisHots = [
+            {
+                q: "1. Bacalah penggalan artikel berikut: 'Sampah plastik di lautan Indonesia mencapai 1,3 juta ton per tahun (Data KLHK 2023). Hal ini sangat memprihatinkan dan seharusya masyarakat lebih sadar diri.' Kalimat manakah yang memuat OPINI?",
+                options: [
+                    "Sampah plastik di lautan Indonesia mencapai 1,3 juta ton.",
+                    "Data tersebut bersumber dari KLHK tahun 2023.",
+                    "Hal ini sangat memprihatinkan dan seharusnya masyarakat lebih sadar diri.",
+                    "Semua kalimat merupakan fakta lapangan."
+                ],
+                ans: 2,
+                pembahasan: "Mengandung kata sifat emosional ('sangat memprihatinkan') dan saran subjektif ('seharusnya')."
+            },
+            {
+                q: "2. Dalam artikel sains populer tentang perubahan iklim, kalimat manakah yang merupakan FAKTA kuantitatif?",
+                options: [
+                    "Matahari terasa membakar kulit siang ini.",
+                    "Rata-rata suhu bumi meningkat sebesar 1,1°C sejak era pra-industri.",
+                    "Cuaca di pegunungan jauh lebih nyaman daripada di kota.",
+                    "Sebaiknya kita selalu membawa payung."
+                ],
+                ans: 1,
+                pembahasan: "Menyajikan data angka dan parameter ilmiah yang terukur presisi (1,1°C)."
+            },
+            {
+                q: "3. 'Penggunaan gawai berlebihan merusak mata anak.' Supaya kalimat ini menjadi FAKTA ilmiah populer yang sah, perbaikan yang tepat adalah...",
+                options: [
+                    "Menurut saya, gawai pasti merusak mata anak.",
+                    "Penelitian Kemenkes (2024) mencatat 35% remaja pengguna gawai >5 jam mengalami gangguan penglihatan.",
+                    "Mungkin gawai bisa membuat mata lelah.",
+                    "Sebaiknya gawai dilarang total di sekolah."
+                ],
+                ans: 1,
+                pembahasan: "Menambahkan sumber riset resmi (Kemenkes 2024) dan bukti data numerik (35%)."
+            },
+            {
+                q: "4. Kata 'disarankan' atau 'dianjurkan' dalam artikel ilmiah populer paling sering ditemukan pada bagian...",
+                options: ["Judul Utama", "Rekomendasi / Solusi Penulis (Opini)", "Tabel Statistik", "Grafik Eksperimen"],
+                ans: 1,
+                pembahasan: "Saran dan dianjurkan merupakan gagasan pandangan saran dari penulis."
+            },
+            {
+                q: "5. Manakah klaim FAKTA ilmiah biologi yang BENAR di bawah ini?",
+                options: [
+                    "Semua kucing menyukai warna kuning.",
+                    "Proses fotosintesis pada tumbuhan hijau menghasilkan oksigen.",
+                    "Bunga mawar adalah bunga terindah di dunia.",
+                    "Kucing anggora lebih lucu dari kucing kampung."
+                ],
+                ans: 1,
+                pembahasan: "Hasil fotosintesis menghasilkan oksigen adalah hukum ilmu sains biologi teruji."
+            },
+            {
+                q: "6. 'Taman Nasional Komodo dihuni oleh spesies kadal terbesar di dunia.' Kalimat ini tergolong...",
+                options: ["Fakta", "Opini", "Saran", "Mitos"],
+                ans: 0,
+                pembahasan: "Dapat dibuktikan secara ilmu taksonomi hewan dan geografi lokasi."
+            },
+            {
+                q: "7. Mengapa teks artikel ilmiah populer tetap memerlukan kalimat OPINI?",
+                options: [
+                    "Untuk membingungkan pembaca",
+                    "Guna memberikan analisis, pandangan kritikal, dan saran solusi atas fakta yang dipaparkan",
+                    "Agar artikel dianggap dongeng",
+                    "Untuk menghapus data eksperimen"
+                ],
+                ans: 1,
+                pembahasan: "Opini ilmiah berfungsi memberikan interpretasi dan gagasan ide atas data fakta."
+            },
+            {
+                q: "8. Kalimat berikut yang murni berisi OPINI adalah...",
+                options: [
+                    "Kopi mengandung zat kafein.",
+                    "Minum kopi di pagi hari adalah pengalaman yang sangat menyenangkan.",
+                    "Indonesia mengekspor biji kopi ke luar negeri.",
+                    "Tanaman kopi tumbuh di daerah tropis."
+                ],
+                ans: 1,
+                pembahasan: "Kata 'sangat menyenangkan' bersifat penilaian rasa subjektif tiap individu."
+            },
+            {
+                q: "9. Manakah yang BUKAN merupakan penanda kalimat opini?",
+                options: ["Diperkirakan", "Alangkah baiknya", "Berdasarkan data Badan Pusat Statistik", "Mungkin saja"],
+                ans: 2,
+                pembahasan: "'Berdasarkan data BPS' merupakan kutipan fakta lembaga resmi."
+            },
+            {
+                q: "10. Kalimat: 'Air mendidih pada suhu 100°C pada tekanan 1 atm' termasuk kategori...",
+                options: ["Fakta Sains", "Opini Penulis", "Harapan Masyarakat", "Dugaan Sementara"],
+                ans: 0,
+                pembahasan: "Merupakan titik didih fisika baku (Fakta Sains)."
+            }
+        ];
+
+        let currentKuisIdx = 0;
+        let kuisUserAnswers = new Array(10).fill(null);
+        let kuisTimerInterval;
+
+        function startKuisTimer() {
+            let timeLeft = 300; // 5 menit
+            clearInterval(kuisTimerInterval);
+            kuisTimerInterval = setInterval(() => {
+                let min = Math.floor(timeLeft / 60);
+                let sec = timeLeft % 60;
+                document.getElementById('kuisTimer').innerText = `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+                if (timeLeft <= 0) {
+                    clearInterval(kuisTimerInterval);
+                    alert("Waktu Kuis Selesai!");
+                }
+                timeLeft--;
+            }, 1000);
+        }
+
+        function renderKuisQuestion() {
+            const qData = dataKuisHots[currentKuisIdx];
+            document.getElementById('kuisProgressText').innerText = `Soal ${currentKuisIdx + 1} dari 10`;
+
+            const container = document.getElementById('kuisContainer');
+            container.innerHTML = `
+                <p class="font-bold text-slate-800 dark:text-[#2EC4B6] text-sm sm:text-base mb-4 leading-relaxed">${qData.q}</p>
+                <div class="space-y-3">
+                    ${qData.options.map((opt, oIdx) => `
+                        <button onclick="selectKuisOption(${oIdx})" class="w-full text-left p-3 rounded-xl border transition text-xs sm:text-sm ${kuisUserAnswers[currentKuisIdx] === oIdx ? 'bg-[#2EC4B6] text-[#3C096C] font-bold border-[#2EC4B6]' : 'bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 border-slate-200 dark:border-slate-600 hover:bg-purple-50 dark:hover:bg-purple-900/30'}">
+                            ${String.fromCharCode(65 + oIdx)}. ${opt}
+                        </button>
+                    `).join('')}
+                </div>
+            `;
+
+            const pemb = document.getElementById('kuisPembahasan');
+            if (kuisUserAnswers[currentKuisIdx] !== null) {
+                pemb.classList.remove('hidden');
+                pemb.innerHTML = `<strong>Pembahasan:</strong> ${qData.pembahasan}`;
+            } else {
+                pemb.classList.add('hidden');
+            }
+
+            document.getElementById('btnKuisPrev').disabled = (currentKuisIdx === 0);
+        }
+
+        function selectKuisOption(oIdx) {
+            kuisUserAnswers[currentKuisIdx] = oIdx;
+            renderKuisQuestion();
+        }
+
+        function nextKuis() {
+            if (currentKuisIdx < dataKuisHots.length - 1) {
+                currentKuisIdx++;
+                renderKuisQuestion();
+            } else {
+                let score = 0;
+                kuisUserAnswers.forEach((ans, i) => {
+                    if (ans === dataKuisHots[i].ans) score += 10;
+                });
+                studentData.kuisScore = score;
+                alert(`Kuis Selesai! Skor Kuis HOTS Kamu: ${score}/100`);
+                updateProgress(75);
+            }
+        }
+
+        function prevKuis() {
+            if (currentKuisIdx > 0) {
+                currentKuisIdx--;
+                renderKuisQuestion();
+            }
+        }
+
+        // 7. ASESMEN AKHIR LOGIC (10 SOAL EVALUASI)
+        const dataAsesmenAkhir = [
+            {
+                q: "1. Kalimat yang berisi informasi nyata dan dapat dibuktikan kebenarannya secara objektif disebut...",
+                options: ["Kalimat Fakta", "Kalimat Opini", "Kalimat Imbauan", "Kalimat Fiksi"],
+                ans: 0
+            },
+            {
+                q: "2. 'Menurut perkiraan saya, cuaca besok akan sangat cerah.' Pernyataan ini tergolong...",
+                options: ["Fakta", "Opini", "Data Medis", "Hukum Alam"],
+                ans: 1
+            },
+            {
+                q: "3. Manakah di bawah ini yang memuat FAKTA dengan data statistik?",
+                options: [
+                    "Pantai Kuta Bali sangat indah saat matahari terbenam.",
+                    "Suhu udara kota Surabaya mencapai 34°C pada jam 12.00 WIB.",
+                    "Makanan khas daerah selalu lezat.",
+                    "Belajar Bahasa Indonesia sangat mudah."
+                ],
+                ans: 1
+            },
+            {
+                q: "4. Salah satu ciri utama artikel ilmiah populer adalah...",
+                options: [
+                    "Gaya bahasanya santai dan populer agar mudah dipahami publik",
+                    "Tidak memuat data sama sekali",
+                    "Berisi cerita imajinasi dongeng",
+                    "Hanya boleh dibaca oleh ilmuwan"
+                ],
+                ans: 0
+            },
+            {
+                q: "5. 'Vaksinasi berhasil mengurangi risiko rawat inap hingga 70%.' Kalimat ini termasuk...",
+                options: ["Fakta Ilmiah", "Opini Pribadi", "Ramalan", "Perintah"],
+                ans: 0
+            },
+            {
+                q: "6. Kata yang sering menandai ungkapan opini adalah...",
+                options: ["Sebaiknya", "Pada tahun 2024", "Di Kota Bandung", "Sebanyak 100 gram"],
+                ans: 0
+            },
+            {
+                q: "7. 'Pancasila disahkan sebagai dasar negara pada tanggal 18 Agustus 1945.' Kalimat tersebut tergolong...",
+                options: ["Fakta Sejarah", "Opini Penulis", "Saran Pemerintah", "Dugaan"],
+                ans: 0
+            },
+            {
+                q: "8. Mengapa pembaca artikel populer harus kritis membedakan fakta dan opini?",
+                options: [
+                    "Agar tidak mudah terkecoh oleh berita bohong (hoaks)",
+                    "Agar bisa menghafal seluruh artikel",
+                    "Agar bisa menyalin artikel",
+                    "Agar artikel menjadi lebih panjang"
+                ],
+                ans: 0
+            },
+            {
+                q: "9. 'Olahraga lari pagi terasa jauh lebih menyegarkan dibanding malam hari.' Kalimat ini merupakan...",
+                options: ["Opini Subjektif", "Fakta Mutlak", "Peraturan Negara", "Rumus Sains"],
+                ans: 0
+            },
+            {
+                q: "10. Bagian artikel populer yang memuat sudut pandang dan saran ide penulis dinamakan...",
+                options: ["Opini / Opini Penulis", "Data Tabel Eksperimen", "Daftar Pustaka", "Judul Grafik"],
+                ans: 0
+            }
+        ];
+
+        function renderAsesmenAkhir() {
+            const container = document.getElementById('asesmenAkhirContainer');
+            container.innerHTML = dataAsesmenAkhir.map((item, idx) => `
+                <div class="bg-slate-50 dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700">
+                    <p class="font-bold text-[#3C096C] dark:text-[#2EC4B6] mb-3 text-sm sm:text-base">${item.q}</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        ${item.options.map((opt, oIdx) => `
+                            <label class="flex items-center space-x-2 p-3 bg-white dark:bg-slate-700 rounded-xl border border-slate-200 dark:border-slate-600 cursor-pointer hover:bg-purple-50 dark:hover:bg-purple-900/30 transition">
+                                <input type="radio" name="akhir_${idx}" value="${oIdx}" class="form-radio text-[#3C096C]">
+                                <span class="text-xs sm:text-sm text-slate-800 dark:text-slate-200">${opt}</span>
+                            </label>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function submitAsesmenAkhir() {
+            let score = 0;
+            dataAsesmenAkhir.forEach((item, idx) => {
+                const selected = document.querySelector(`input[name="akhir_${idx}"]:checked`);
+                if (selected && parseInt(selected.value) === item.ans) {
+                    score += 10;
+                }
+            });
+
+            studentData.asesmenAkhirScore = score;
+
+            // Kategori Predikat Sesuai Prompt
+            let predikat = "";
+            if (score >= 90) predikat = "Sangat Baik 🏆";
+            else if (score >= 80) predikat = "Baik 👍";
+            else if (score >= 70) predikat = "Cukup 🙂";
+            else predikat = "Perlu Bimbingan 📚";
+
+            document.getElementById('finalScoreNum').innerText = score;
+            document.getElementById('finalPredikat').innerText = predikat;
+            document.getElementById('finalScoreCard').classList.remove('hidden');
+
+            document.getElementById('certScore').innerText = `${score} (${predikat})`;
+
+            // Confetti jika Nilai >= 90
+            if (score >= 90) {
+                confetti({
+                    particleCount: 150,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+            }
+
+            updateProgress(100);
+        }
+
+        // 8. REFLEKSI LOGIC
+        let selectedEmotion = "";
+
+        function selectEmo(btn, emoText) {
+            document.querySelectorAll('.emo-btn').forEach(b => b.classList.remove('ring-4', 'ring-[#2EC4B6]'));
+            btn.classList.add('ring-4', 'ring-[#2EC4B6]');
+            selectedEmotion = emoText;
+        }
+
+        function saveRefleksi() {
+            studentData.refleksi = {
+                emo: selectedEmotion,
+                f1: document.getElementById('ref1').value,
+                f2: document.getElementById('ref2').value,
+                f3: document.getElementById('ref3').value,
+                f4: document.getElementById('ref4').value
+            };
+            const alertBox = document.getElementById('refleksiAlert');
+            alertBox.classList.remove('hidden');
+            setTimeout(() => alertBox.classList.add('hidden'), 3000);
+            updateProgress(90);
+        }
+
+        // 9. SERTIFIKAT & DOWNLOAD REPORT LOGIC
+        function downloadCertificate() {
+            const certElement = document.getElementById('certificateCard');
+            html2canvas(certElement, {
+                scale: 2,
+                useCORS: true
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `Sertifikat_MPI_${studentData.name.replace(/\s+/g, '_')}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+        }
+
+        function downloadReport() {
+            const reportText = `
+=== LAPORAN HASIL BELAJAR MURID ===
+Nama Murid : ${studentData.name}
+Kelas      : ${studentData.class}
+Materi     : Mengidentifikasi Fakta dan Opini dalam Teks Artikel Ilmiah Populer (Kelas VIII)
+Tanggal    : ${new Date().toLocaleDateString('id-ID')}
+
+NILAI & EVALUASI:
+- Asesmen Awal   : ${studentData.asesmenAwalScore}/100
+- Kuis HOTS      : ${studentData.kuisScore}/100
+- Asesmen Akhir  : ${studentData.asesmenAkhirScore}/100
+
+Refleksi Belajar:
+${JSON.stringify(studentData.refleksi, null, 2)}
+===================================
+            `;
+            const blob = new Blob([reportText], { type: 'text/plain' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `Laporan_Belajar_${studentData.name.replace(/\s+/g, '_')}.txt`;
+            link.click();
+        }
+
+        // INITIALIZATION
+        window.onload = function () {
+            renderAsesmenAwal();
+            renderKuisQuestion();
+            renderAsesmenAkhir();
+            startKuisTimer();
+        };
+    </script>
+</body>
+</html>
